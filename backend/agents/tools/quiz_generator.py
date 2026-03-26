@@ -12,7 +12,7 @@ def generate_quiz(text: str, quiz_type: str = "choice", count: int = 5) -> str:
         quiz_type: 题型，可选 choice（选择题）、fill（填空题）、short_answer（简答题）
         count: 生成题目数量，默认5题
     """
-    llm = get_llm(streaming=False, lite=True)
+    llm = get_llm(streaming=False, lite=False)
     prompt = f"""请根据以下学习材料生成{count}道单选题，每题4个选项（A/B/C/D）。
 
 {text[:3000]}

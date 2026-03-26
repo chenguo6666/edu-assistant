@@ -50,8 +50,6 @@
 - [x] 5.3 UI 打磨 — `已完成`
 - [x] 5.4 项目文档更新 — `已完成`
 
-### 阶段九：功能精进
-- [x] 9.1 重构登录/注册页面 UI — `已完成`
 
 ### 阶段六：Bug 修复 + 功能增强 + 上线
 - [x] 6.1 修复 WebSocket 双重回答 bug — `已完成`
@@ -77,6 +75,11 @@
 - [x] 8.6 增加内容兜底检测（Agent 未调用工具时也能识别出题消息） — `已完成`
 - [x] 8.7 约束出题：统一只生成选择题，每题立即附答案和解析 — `已完成`
 - [x] 8.8 edu_agent 强制工具调用规则（出题/总结/知识点/学习计划均必须调工具） — `已完成`
+
+### 阶段九：功能精进
+- [x] 9.1 重构登录/注册页面 UI — `已完成`
+- [x] 9.2 工具 LLM 性能优化（122B → 397B）— `已完成`
+- [x] 9.3 修复 WebSocketCallbackHandler `on_chat_model_start` 报错 — `已完成`
 
 ---
 
@@ -113,6 +116,24 @@ EduAssistant/
 ## 📒 开发记录
 
 <!-- 每次开发结束后，在此处新增一条记录，最新记录置顶 -->
+
+---
+
+### 🗓️ 第 11 次｜2026-03-26
+
+#### 📝 功能点 / 修改点
+阶段九 9.2-9.3：回复速度分析 + 工具 LLM 优化 + Callback 修复
+
+#### 📦 涉及文件 / 模块
+backend/（agents/tools/summarize.py, knowledge_extractor.py, quiz_generator.py, study_plan.py, agents/callbacks.py）
+
+#### 🛠️ 实施内容摘要
+- **性能基准测试**：编写 `benchmark.py` 逐层测量 LLM 原始延迟、工具耗时、完整 Agent 耗时；发现 122B（轻量模型）在硅基流动上实际比 397B **更慢**（extract_knowledge：134s vs 72s，study_plan：138s vs 87s），原因是 122B 在硅基流动排队更繁忙
+- **工具 LLM 换回 397B**：将 summarize / extract_knowledge / generate_quiz / generate_study_plan 4 个工具的 `get_llm(lite=True)` 改为 `get_llm(lite=False)`，实测 extract_knowledge 提速 47%、study_plan 提速 37%；根本瓶颈为硅基流动服务端延迟（25-90s/次），代码层已无更大优化空间
+- **修复 Callback 报错**：LangChain 新版要求 `AsyncCallbackHandler` 子类实现 `on_chat_model_start`，否则抛 `NotImplementedError`（不影响功能但有错误日志）；在 `WebSocketCallbackHandler` 中补充空实现
+
+#### ⚠️ 遗留问题
+- 硅基流动 API 延迟高且波动大（同一请求 25-90s 不等），计划下一阶段更换 API 服务商
 
 ---
 

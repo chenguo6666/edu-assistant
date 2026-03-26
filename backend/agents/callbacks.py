@@ -21,6 +21,10 @@ class WebSocketCallbackHandler(AsyncCallbackHandler):
         except Exception:
             pass
 
+    async def on_chat_model_start(self, serialized, messages, **kwargs) -> None:
+        """Chat 模型开始调用时触发（新版 LangChain 要求实现）"""
+        pass
+
     async def on_agent_action(self, action: AgentAction, **kwargs) -> None:
         """Agent 决定调用工具时触发"""
         self.step_count += 1

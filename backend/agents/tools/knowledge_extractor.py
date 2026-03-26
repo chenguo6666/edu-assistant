@@ -6,7 +6,7 @@ from agents.llm import get_llm
 @tool
 def extract_knowledge(text: str) -> str:
     """从学习材料中提取核心知识点，形成结构化的知识点列表。输入为需要提取知识点的文本内容。"""
-    llm = get_llm(streaming=False, lite=True)
+    llm = get_llm(streaming=False, lite=False)
     prompt = f"""请从以下学习材料中提取核心知识点：
 
 {text[:3000]}

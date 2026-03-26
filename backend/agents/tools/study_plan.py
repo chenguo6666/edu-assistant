@@ -12,7 +12,7 @@ def generate_study_plan(subject: str, duration: str = "1周", goal: str = "") ->
         duration: 学习周期，如"1周"、"1个月"
         goal: 学习目标，如"期末考试复习"、"掌握基础概念"
     """
-    llm = get_llm(streaming=False, lite=True)
+    llm = get_llm(streaming=False, lite=False)
     goal_text = f"，学习目标为：{goal}" if goal else ""
     prompt = f"""请为学生制定一份{subject}的{duration}学习计划{goal_text}。
 
