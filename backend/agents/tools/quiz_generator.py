@@ -12,22 +12,28 @@ def generate_quiz(text: str, quiz_type: str = "choice", count: int = 5) -> str:
         quiz_type: 题型，可选 choice（选择题）、fill（填空题）、short_answer（简答题）
         count: 生成题目数量，默认5题
     """
-    type_map = {
-        "choice": "选择题（每题4个选项A/B/C/D，标注正确答案）",
-        "fill": "填空题（用____标注需要填写的位置）",
-        "short_answer": "简答题",
-    }
-    type_desc = type_map.get(quiz_type, type_map["choice"])
-
     llm = get_llm(streaming=False, lite=True)
-    prompt = f"""请根据以下学习材料生成{count}道{type_desc}：
+    prompt = f"""请根据以下学习材料生成{count}道单选题，每题4个选项（A/B/C/D）。
 
 {text[:3000]}
 
-要求：
-1. 题目应紧扣材料内容
-2. 难度适中，覆盖不同知识点
-3. 每道题后附上参考答案
-4. 使用中文出题"""
+输出格式要求（严格按此格式，每道题独立完整）：
+1. 题目内容（）
+A. 选项内容
+B. 选项内容
+C. 选项内容
+D. 选项内容
+答案：X
+解析：简要说明正确答案的理由
+
+2. 题目内容（）
+A. ...
+（依此类推）
+
+其他要求：
+- 题目紧扣材料内容，难度适中，覆盖不同知识点
+- 每道题生成完后立即附上答案和解析，不要先列完所有题目再统一给答案
+- 只输出题目内容，不要有其他说明文字
+- 使用中文出题"""
     response = llm.invoke(prompt)
     return response.content

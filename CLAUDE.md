@@ -44,7 +44,7 @@ EduAssistant/
         ├── stores/       (auth.ts, conversation.ts)
         ├── router/       (index.ts)
         ├── views/        (LoginView, RegisterView, ChatView, UserProfileView)
-        ├── components/chat/      (ChatWindow, MessageBubble, MessageInput, AgentSteps)
+        ├── components/chat/      (ChatWindow, MessageBubble, MessageInput, AgentSteps, QuizInteractive)
         ├── components/knowledge/ (FileUpload)
         ├── composables/  (useWebSocket.ts)
         └── types/        (index.ts)

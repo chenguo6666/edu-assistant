@@ -116,6 +116,7 @@ async function handleTabChange(mode: string) {
 function handleUserMenu(key: string) {
   if (key === 'profile') router.push('/profile')
   if (key === 'logout') {
+    conversationStore.$reset()
     authStore.logout()
     router.push('/login')
   }

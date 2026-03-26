@@ -128,14 +128,16 @@ async def websocket_chat(websocket: WebSocket, conversation_id: int):
 
                 output = result.get("output", "抱歉，我无法处理这个请求。")
 
-                # 序列化中间步骤
+                # 序列化中间步骤（出题工具输出保留完整内容，其余截断5000字符）
                 steps_data = []
                 for step in result.get("intermediate_steps", []):
                     action, observation = step
+                    output_str = str(observation)
+                    limit = len(output_str) if action.tool == "generate_quiz" else 5000
                     steps_data.append({
                         "tool": action.tool,
                         "input": str(action.tool_input),
-                        "output": str(observation)[:500],
+                        "output": output_str[:limit],
                     })
 
                 # 保存 AI 回复

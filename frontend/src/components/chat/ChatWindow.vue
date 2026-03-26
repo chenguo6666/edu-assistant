@@ -7,25 +7,21 @@
         <n-spin size="medium" />
       </div>
 
-      <!-- 空状态：欢迎语 + 预设问题卡片 -->
+      <!-- 空状态：欢迎语 -->
       <div v-else-if="messages.length === 0 && !isThinking && !streamingContent" class="empty-chat">
         <p class="empty-title">你好，有什么可以帮你？</p>
         <p class="empty-subtitle">{{ modeSubtitle }}</p>
-        <div class="preset-grid">
-          <button
-            v-for="card in presetCards"
-            :key="card.label"
-            class="preset-card"
-            @click="fillPreset(card.text)"
-          >
-            <span class="preset-icon">{{ card.icon }}</span>
-            <span class="preset-label">{{ card.label }}</span>
-          </button>
-        </div>
       </div>
 
       <!-- 历史消息 -->
-      <MessageBubble v-for="msg in messages" :key="msg.id" :message="msg" />
+      <MessageBubble
+        v-for="(msg, idx) in messages"
+        :key="msg.id"
+        :message="msg"
+        :is-last="msg.role === 'assistant' && idx === messages.length - 1"
+        @regenerate="handleRegenerate"
+        @send-message="handleSend"
+      />
 
       <!-- 正在生成的 AI 消息 -->
       <div v-if="isThinking || streamingContent" class="message-bubble assistant">
@@ -38,6 +34,19 @@
           <div class="bubble-text" v-else-if="streamingContent" v-html="renderedStreaming"></div>
         </div>
       </div>
+    </div>
+
+    <!-- 预设快捷按钮（常驻输入框上方） -->
+    <div class="preset-bar">
+      <button
+        v-for="card in presetCards"
+        :key="card.label"
+        class="preset-chip"
+        @click="fillPreset(card.text)"
+      >
+        <span class="chip-icon">{{ card.icon }}</span>
+        <span class="chip-label">{{ card.label }}</span>
+      </button>
     </div>
 
     <!-- 输入框 -->
@@ -80,7 +89,7 @@ const renderedStreaming = computed(() => md.render(currentTokens.value))
 // 各模式预设问题卡片
 const EDU_PRESETS = [
   { icon: '📝', label: '总结课文', text: '请帮我总结以下内容，提取核心知识点：\n\n' },
-  { icon: '❓', label: '生成练习题', text: '请根据以下内容生成5道选择题，并附上答案解析：\n\n' },
+  { icon: '❓', label: '生成练习题', text: '请根据以下内容生成5道选择题（每题附答案和解析）：\n\n' },
   { icon: '💡', label: '解释概念', text: '请用简单易懂的方式解释以下概念：\n\n' },
   { icon: '📅', label: '制定学习计划', text: '请帮我制定一个两周的学习计划，目标是：\n\n' },
   { icon: '🔍', label: '提取知识点', text: '请从以下内容中提取重要知识点并整理成结构化笔记：\n\n' },
@@ -121,6 +130,13 @@ function handleSend(content: string) {
   conversationStore.addMessage(tempMsg)
   scrollToBottom()
   sendMessage(content)
+}
+
+/** 重新回答：找到最后一个用户消息，重新发送 */
+function handleRegenerate() {
+  const lastUserMsg = [...messages.value].reverse().find((m) => m.role === 'user')
+  if (!lastUserMsg) return
+  sendMessage(lastUserMsg.content)
 }
 
 function scrollToBottom() {
@@ -203,53 +219,48 @@ onUnmounted(() => {
 .empty-subtitle {
   font-size: 13px;
   color: #999;
-  margin-bottom: 8px;
 }
 
-/* 预设问题卡片网格 */
-.preset-grid {
+/* 预设快捷按钮栏（常驻输入框上方） */
+.preset-bar {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  width: 100%;
-  max-width: 720px;
+  gap: 6px;
+  padding: 6px 20px;
+  flex-shrink: 0;
 }
 
-.preset-card {
+.preset-chip {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 14px 16px;
-  background: #fff;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: #f7f7f8;
   border: 1px solid #e8e8e8;
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
-  text-align: left;
-  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
   font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.preset-card:hover {
+.preset-chip:hover {
   border-color: #667eea;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
-  transform: translateY(-1px);
+  background: #f0f0ff;
 }
 
-.preset-card:active {
-  transform: translateY(0);
-}
-
-.preset-icon {
-  font-size: 22px;
+.chip-icon {
+  font-size: 14px;
   line-height: 1;
+  flex-shrink: 0;
 }
 
-.preset-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: #333;
-  line-height: 1.4;
+.chip-label {
+  font-size: 12px;
+  color: #555;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 正在生成的气泡（与 MessageBubble 保持一致） */

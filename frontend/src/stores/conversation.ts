@@ -56,9 +56,17 @@ export const useConversationStore = defineStore('conversation', () => {
     }
   }
 
+  /** 重置所有状态（切换用户时调用） */
+  function $reset() {
+    conversations.value = []
+    currentId.value = null
+    messages.value = []
+    currentMode.value = 'edu'
+  }
+
   return {
     conversations, currentId, messages, currentMode,
     loadConversations, createConversation, selectConversation,
-    removeConversation, addMessage, updateLastAssistantMessage,
+    removeConversation, addMessage, updateLastAssistantMessage, $reset,
   }
 })

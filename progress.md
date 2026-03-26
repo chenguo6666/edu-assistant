@@ -50,6 +50,21 @@
 - [x] 5.3 UI 打磨 — `已完成`
 - [x] 5.4 项目文档更新 — `已完成`
 
+### 阶段六：Bug 修复 + 功能增强 + 上线
+- [x] 6.1 修复 WebSocket 双重回答 bug — `已完成`
+- [x] 6.2 修复界面未占满浏览器 / 输入框位置异常 — `已完成`
+- [x] 6.3 预设问题卡片功能 — `已完成`
+- [x] 6.4 撰写 README 团队启动文档 — `已完成`
+- [x] 6.5 推送项目到 GitHub — `已完成`
+
+### 阶段七：Bug 修复 + 用户体验增强
+- [x] 7.1 修复切换账号后"对话不存在" bug — `已完成`
+- [x] 7.2 修复 langchain/chromadb 依赖版本冲突 — `已完成`
+- [x] 7.3 预设卡片常驻（输入框上方两行迷你网格） — `已完成`
+- [x] 7.4 消息操作栏（复制/朗读/重新回答） — `已完成`
+- [x] 7.5 导出功能（Markdown + PDF） — `已完成`
+- [x] 7.6 答题交互组件（选择题/填空题/简答题内嵌表单） — `已完成`
+
 ---
 
 ## 📁 当前文件结构
@@ -74,7 +89,7 @@ EduAssistant/
         ├── stores/       (auth.ts, conversation.ts)
         ├── router/       (index.ts)
         ├── views/        (LoginView, RegisterView, ChatView, UserProfileView)
-        ├── components/chat/      (ChatWindow, MessageBubble, MessageInput, AgentSteps)
+        ├── components/chat/      (ChatWindow, MessageBubble, MessageInput, AgentSteps, QuizInteractive)
         ├── components/knowledge/ (FileUpload)
         ├── composables/  (useWebSocket.ts)
         └── types/        (index.ts)
@@ -85,6 +100,50 @@ EduAssistant/
 ## 📒 开发记录
 
 <!-- 每次开发结束后，在此处新增一条记录，最新记录置顶 -->
+
+---
+
+### 🗓️ 第 8 次｜2026-03-25
+
+#### 📝 功能点 / 修改点
+阶段七全部完成：Bug 修复 + 用户体验增强（4 项新功能）
+
+#### 📦 涉及文件 / 模块
+frontend/（stores/conversation.ts, views/ChatView.vue, components/chat/ChatWindow.vue, components/chat/MessageBubble.vue, components/chat/QuizInteractive.vue）
+backend/（requirements.txt）
+
+#### 🛠️ 实施内容摘要
+- **Bug 修复①（切换账号后"对话不存在"）**：根因是退出登录时 conversation store 未重置，旧用户的 `currentId` 残留导致新用户登录后请求旧对话。修复：conversation.ts 新增 `$reset()` 方法，ChatView 的 logout 调用 `conversationStore.$reset()`
+- **Bug 修复②（依赖版本冲突）**：`langchain==0.3.14` 要求 `langsmith<0.3` 而 `langchain-core==0.3.83` 要求 `langsmith>=0.3.45`，导致队友无法安装。修复：升级 langchain/langchain-community 到 0.3.28，锁定全部关键包版本，`pip check` 验证零冲突
+- **新功能①（预设卡片常驻）**：将预设卡片从空状态区移到输入框上方，改为 3×2 迷你按钮网格，对话过程中始终可见
+- **新功能②（消息操作栏）**：AI 消息气泡下方添加操作按钮：复制（Clipboard API + 降级方案）、朗读（Web Speech API，zh-CN）、重新回答（重新发送最后一条用户消息）
+- **新功能③（导出功能）**：支持 Markdown 文件下载 + PDF 导出（通过浏览器打印对话框），纯前端实现无需后端
+- **新功能④（答题交互组件）**：新建 QuizInteractive.vue，解析 AI 出题内容自动识别选择题（A/B/C/D）、填空题（____）、简答题，渲染为可交互表单；用户提交后格式化答案发送给 AI 批改；通过检测 agent_steps 是否包含 `generate_quiz` 工具调用来触发
+
+#### ✅ 目标 / 作用
+修复核心交互 bug，大幅提升用户体验：预设卡片降低提问门槛，操作栏提供类 ChatGPT 交互，答题组件实现练习闭环，导出功能方便离线学习
+
+---
+
+### 🗓️ 第 7 次｜2026-03-24
+
+#### 📝 功能点 / 修改点
+阶段六全部完成：Bug 修复 + 预设问题卡片 + 项目上线
+
+#### 📦 涉及文件 / 模块
+frontend/（composables/useWebSocket.ts, components/chat/ChatWindow.vue, components/chat/MessageInput.vue, views/ChatView.vue）
+根目录（README.md, .gitignore）
+
+#### 🛠️ 实施内容摘要
+- **Bug 修复①（双重回答）**：useWebSocket 新增 `resetStreamingState()`；ChatWindow 的 `watch(isDone)` 改为 async，await 历史消息加载完成后再清空流式状态，彻底避免历史消息与流式气泡同时显示
+- **Bug 修复②（界面未占满浏览器）**：根因是 naive-ui 2.44 的 NConfigProvider 渲染了一个无高度的 `<div>`，导致 `height: 100%` 百分比链断裂；将 `ChatView.vue` 中 `.chat-page` 改为 `height: 100vh; overflow: hidden` 直接锚定视口，同时给 `.chat-window` 加 `flex: 1; overflow: hidden`、`.messages-area` 加 `min-height: 0`
+- **新功能（预设问题卡片）**：MessageInput 通过 `defineExpose({ fill })` 暴露填入接口；ChatWindow 空状态重设计为欢迎语 + 副标题 + 3×2 卡片网格，教育/保研两套各 6 张卡片，点击直接填入输入框
+- **README.md**：Windows 完整启动文档，含前置条件、4步快速启动、环境变量表格、常见问题7条
+- **.gitignore**：补充排除 `.claude/`、`.playwright-mcp/`
+- **GitHub 推送**：初始提交 85 个文件，推送至 https://github.com/chenguo6666/edu-assistant
+
+#### ✅ 目标 / 作用
+消除核心交互 bug，提升新用户引导体验（预设卡片降低冷启动门槛），项目正式上线到 GitHub 供团队协作
 
 ---
 
