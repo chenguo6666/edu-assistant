@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+backend/venv/
+backend/.venv/
+
+# Environment variables
+backend/.env
+
+# Database
+backend/*.db
+backend/*.sqlite3
+
+# ChromaDB
+backend/chroma_db/
+
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Claude Code / Playwright MCP（本地开发工具，不提交）
+.claude/
+.playwright-mcp/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
