@@ -1,8 +1,14 @@
 """EduAssistant 后端应用入口"""
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from database import init_db
 from routers import auth, user, conversation, chat, knowledge
+
+# 前端构建产物目录
+FRONTEND_DIST = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
 
 app = FastAPI(title="EduAssistant API", version="0.1.0")
 
@@ -44,3 +50,13 @@ def on_startup():
 @app.get("/api/health")
 def health_check():
     return {"status": "ok"}
+
+
+# 托管前端静态文件（须在所有 API 路由之后注册）
+if os.path.isdir(FRONTEND_DIST):
+    app.mount("/assets", StaticFiles(directory=os.path.join(FRONTEND_DIST, "assets")), name="assets")
+
+    @app.get("/{full_path:path}")
+    def serve_spa(full_path: str):
+        """所有非 API 路由返回 index.html，支持前端 SPA 路由"""
+        return FileResponse(os.path.join(FRONTEND_DIST, "index.html"))

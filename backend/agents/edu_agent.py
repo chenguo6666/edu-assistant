@@ -30,7 +30,11 @@ EDU_SYSTEM_PROMPT = """你是一个专业的教育助手 AI，专注于帮助学
 - 总结/归纳内容 → 必须调用 summarize
 - 提取知识点/整理笔记 → 必须调用 extract_knowledge
 - 制定学习计划 → 必须调用 generate_study_plan
-无论用户是否涉及上传文档，都必须调用工具。如果用户没有指定文档，就先用 web_search 搜索相关素材，或用你已有的知识作为素材传给对应工具。"""
+无论用户是否涉及上传文档，都必须调用工具。如果用户没有指定文档，就先用 web_search 搜索相关素材，或用你已有的知识作为素材传给对应工具。
+
+【输出规则】工具调用完成后：
+- generate_study_plan / summarize / extract_knowledge / generate_quiz 的输出内容必须**完整**呈现给用户，禁止二次压缩或仅作概括性描述
+- 可以在工具输出前后加一句简短的引导语，但核心内容必须原文展示"""
 
 
 def create_edu_agent(user_id: Optional[int] = None, user_profile: Optional[Dict] = None) -> BaseAgent:

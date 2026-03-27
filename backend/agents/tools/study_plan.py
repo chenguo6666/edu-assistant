@@ -17,10 +17,9 @@ def generate_study_plan(subject: str, duration: str = "1周", goal: str = "") ->
     prompt = f"""请为学生制定一份{subject}的{duration}学习计划{goal_text}。
 
 要求：
-1. 按天/周合理分配学习内容
-2. 包含具体的学习任务和建议学习时长
-3. 穿插复习和自测环节
-4. 给出学习方法建议
-5. 使用中文回答"""
+1. 按天分配学习内容，每天不超过2行描述
+2. 仅列出最核心的学习任务，不展开细节
+3. 末尾一句话给出学习方法建议
+4. 总字数控制在300字以内，使用中文回答"""
     response = llm.invoke(prompt)
     return response.content

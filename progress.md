@@ -86,6 +86,12 @@
 - [x] 10.2 修复保研知识库初始化报错（Embedding 保留硅基流动）— `已完成`
 - [x] 10.3 修复文档删除功能无效（DELETE 请求被 n-upload 事件捕获）— `已完成`
 
+### 阶段十一：Cloudflare 隧道部署 + 功能微调
+- [x] 11.1 FastAPI 托管前端静态文件（构建后单端口访问）— `已完成`
+- [x] 11.2 Cloudflare 临时隧道公网暴露本地服务 — `已完成`
+- [x] 11.3 精简学习计划工具输出（300字以内）— `已完成`
+- [x] 11.4 edu_agent 补充输出规则（禁止二次压缩工具结果）— `已完成`
+
 ---
 
 ## 📁 当前文件结构
@@ -121,6 +127,26 @@ EduAssistant/
 ## 📒 开发记录
 
 <!-- 每次开发结束后，在此处新增一条记录，最新记录置顶 -->
+
+---
+
+### 🗓️ 第 13 次｜2026-03-27
+
+#### 📝 功能点 / 修改点
+阶段十一：Cloudflare 隧道部署 + 学习计划工具精简 + Agent 输出规则
+
+#### 📦 涉及文件 / 模块
+`backend/main.py`、`backend/agents/edu_agent.py`、`backend/agents/tools/study_plan.py`
+
+#### 🛠️ 实施内容摘要
+- **FastAPI 托管前端静态文件**：`main.py` 挂载 `frontend/dist/assets` 静态目录，并添加 SPA 兜底路由（`/{full_path:path}` → `index.html`），前后端合并为单端口（8000）访问
+- **Cloudflare 临时隧道**：通过 `cloudflared tunnel --url http://localhost:8000` 将本地服务暴露为公网链接，无需服务器；`cloudflared` 通过 winget 安装
+- **精简学习计划输出**：`study_plan.py` prompt 改为每天不超过 2 行、不展开细节、总字数 300 字以内，减少工具执行时间和 LLM 回复长度
+- **Agent 输出规则**：`edu_agent.py` 补充【输出规则】，要求工具结果完整呈现，禁止二次压缩
+- **性能分析（未修改）**：分析了复合任务慢的三个根因——ChromaDB + 硅基流动 Embedding 冷启动（5s）、AgentExecutor 串行工具调用、三工具各自独立 LLM 调用；结论为架构改动成本高，暂不优化
+
+#### ⚠️ 遗留问题
+- 无
 
 ---
 
