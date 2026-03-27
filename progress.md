@@ -91,6 +91,7 @@
 - [x] 11.2 Cloudflare 临时隧道公网暴露本地服务 — `已完成`
 - [x] 11.3 精简学习计划工具输出（300字以内）— `已完成`
 - [x] 11.4 edu_agent 补充输出规则（禁止二次压缩工具结果）— `已完成`
+- [x] 11.5 修复保研 Agent 工具反复调用（补充查询策略 + max_iterations 调整为 10）— `已完成`
 
 ---
 
@@ -127,6 +128,24 @@ EduAssistant/
 ## 📒 开发记录
 
 <!-- 每次开发结束后，在此处新增一条记录，最新记录置顶 -->
+
+---
+
+### 🗓️ 第 14 次｜2026-03-27
+
+#### 📝 功能点 / 修改点
+阶段十一 11.5：修复保研 Agent 工具反复调用至上限
+
+#### 📦 涉及文件 / 模块
+`backend/agents/admission_agent.py`、`backend/agents/base_agent.py`
+
+#### 🛠️ 实施内容摘要
+- **根因**：`query_school_info` 每次返回 k=3 个片段不区分学校，比较多校时 LLM 反复调用同一工具试图补全信息，直到触发 `max_iterations` 上限（6次）停止并输出 "Agent stopped due to max iterations"
+- **修复 1**：`admission_agent.py` system prompt 补充【查询策略】：比较多所学校时每所学校单独调用一次、同一学校不重复查询、收集完毕即汇总
+- **修复 2**：`base_agent.py` 将 `max_iterations` 从 6 调整为 10，防止复杂任务误触上限
+
+#### ⚠️ 遗留问题
+- 无
 
 ---
 

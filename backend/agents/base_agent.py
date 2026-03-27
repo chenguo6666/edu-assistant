@@ -54,7 +54,7 @@ class BaseAgent:
             agent=self.agent,
             tools=self.tools,
             verbose=True,
-            max_iterations=6,
+            max_iterations=10,
             return_intermediate_steps=True,
             handle_parsing_errors=True,
         )
