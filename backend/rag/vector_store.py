@@ -31,10 +31,33 @@ def delete_collection(collection_name: str):
         pass
 
 
+def add_documents_batch(
+    collection_name: str, 
+    documents: List[Document], 
+    batch_size: int = 100
+):
+    """批量添加文档，避免一次性加载过多"""
+    store = get_vector_store(collection_name)
+    
+    for i in range(0, len(documents), batch_size):
+        batch = documents[i:i + batch_size]
+        store.add_documents(batch)
+        logger.info(f"已添加 {min(i+batch_size, len(documents))}/{len(documents)} 个文档")
+    
+    return store
+
+
 def delete_documents_by_source(collection_name: str, source: str):
     """按来源文件路径删除向量（删除单个文档时）"""
-    store = get_vector_store(collection_name)
-    # ChromaDB 支持按 metadata 过滤删除
-    results = store.get(where={"source": source})
-    if results and results.get("ids"):
-        store.delete(ids=results["ids"])
+    try:
+        store = get_vector_store(collection_name)
+        # 先检查是否存在
+        results = store.get(where={"source": source})
+        if results and results.get("ids"):
+            store.delete(ids=results["ids"])
+            logger.info(f"已删除 {len(results['ids'])} 个文档块，来源: {source}")
+            return True
+        return False
+    except Exception as e:
+        logger.error(f"删除失败 {source}: {str(e)}")
+        return False

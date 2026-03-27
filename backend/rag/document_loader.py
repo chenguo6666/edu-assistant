@@ -32,12 +32,17 @@ def load_document(file_path: str, filename: str) -> List[Document]:
     return docs
 
 
-def split_documents(docs: List[Document]) -> List[Document]:
-    """将文档分块，适合中英文混合内容"""
+def split_documents(
+    docs: List[Document], 
+    chunk_size: int = 800, 
+    chunk_overlap: int = 200
+) -> List[Document]:
+    """支持自定义分块大小"""
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=200,
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
         separators=["\n\n", "\n", "。", ".", "！", "？", "!", "?", " ", ""],
+        length_function=len,
     )
     return splitter.split_documents(docs)
 
