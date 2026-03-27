@@ -6,11 +6,16 @@ load_dotenv()
 
 
 class Settings:
-    # 硅基流动
+    # 硅基流动（仅用于 Embedding，LLM 已切换至 DeepSeek）
     SILICONFLOW_API_KEY: str = os.getenv("SILICONFLOW_API_KEY", "")
     SILICONFLOW_BASE_URL: str = os.getenv("SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1")
-    SILICONFLOW_MODEL: str = os.getenv("SILICONFLOW_MODEL", "Qwen/Qwen3.5-397B-A17B")
-    SILICONFLOW_MODEL_LITE: str = os.getenv("SILICONFLOW_MODEL_LITE", "Qwen/Qwen3.5-122B-A10B")
+    # SILICONFLOW_MODEL: str = os.getenv("SILICONFLOW_MODEL", "Qwen/Qwen3.5-397B-A17B")
+    # SILICONFLOW_MODEL_LITE: str = os.getenv("SILICONFLOW_MODEL_LITE", "Qwen/Qwen3.5-122B-A10B")
+
+    # DeepSeek
+    DEEPSEEK_API_KEY: str = os.getenv("DEEPSEEK_API_KEY", "")
+    DEEPSEEK_BASE_URL: str = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
+    DEEPSEEK_MODEL: str = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
 
     # SerpAPI
     SERPAPI_API_KEY: str = os.getenv("SERPAPI_API_KEY", "")

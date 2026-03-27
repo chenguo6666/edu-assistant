@@ -26,7 +26,7 @@
         <n-icon size="16" color="#667eea"><DocumentIcon /></n-icon>
         <span class="doc-name">{{ doc.filename }}</span>
         <span class="doc-chunks">{{ doc.chunk_count }} 段</span>
-        <n-button quaternary circle size="tiny" @click="handleDelete(doc.id)">
+        <n-button quaternary circle size="tiny" @click.stop="handleDelete(doc.id)">
           <n-icon><TrashIcon /></n-icon>
         </n-button>
       </div>
@@ -74,10 +74,11 @@ async function handleUpload({ file }: { file: { file: File } }) {
 async function handleDelete(id: number) {
   try {
     await deleteDocumentApi(id)
-    documents.value = documents.value.filter((d) => d.id !== id)
+    await loadDocuments()
     message.success('文档已删除')
-  } catch {
-    message.error('删除失败')
+  } catch (e: any) {
+    console.error('[FileUpload] 删除失败', e)
+    message.error(e?.response?.data?.detail || '删除失败')
   }
 }
 

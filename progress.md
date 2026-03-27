@@ -81,6 +81,11 @@
 - [x] 9.2 工具 LLM 性能优化（122B → 397B）— `已完成`
 - [x] 9.3 修复 WebSocketCallbackHandler `on_chat_model_start` 报错 — `已完成`
 
+### 阶段十：API 迁移 + Bug 修复
+- [x] 10.1 LLM 从硅基流动迁移至 DeepSeek API — `已完成`
+- [x] 10.2 修复保研知识库初始化报错（Embedding 保留硅基流动）— `已完成`
+- [x] 10.3 修复文档删除功能无效（DELETE 请求被 n-upload 事件捕获）— `已完成`
+
 ---
 
 ## 📁 当前文件结构
@@ -116,6 +121,25 @@ EduAssistant/
 ## 📒 开发记录
 
 <!-- 每次开发结束后，在此处新增一条记录，最新记录置顶 -->
+
+---
+
+### 🗓️ 第 12 次｜2026-03-27
+
+#### 📝 功能点 / 修改点
+阶段十 10.1-10.3：LLM 迁移至 DeepSeek + 两处 Bug 修复
+
+#### 📦 涉及文件 / 模块
+`backend/agents/llm.py`、`backend/config.py`、`backend/routers/knowledge.py`、`backend/.env`、`frontend/src/components/knowledge/FileUpload.vue`
+
+#### 🛠️ 实施内容摘要
+- **LLM 迁移至 DeepSeek**：硅基流动延迟高（25-90s/次）且波动大，切换至 DeepSeek API（deepseek-chat 即 DeepSeek-V3）；`llm.py` 改用 `DEEPSEEK_API_KEY/BASE_URL/MODEL`，旧硅基流动调用注释保留；`config.py` 新增 DeepSeek 三字段
+- **Embedding 保留硅基流动**：DeepSeek 无 Embedding API，`BAAI/bge-m3` 仍由硅基流动提供；`SILICONFLOW_API_KEY` / `SILICONFLOW_BASE_URL` 保留，仅注释掉模型字段
+- **修复保研知识库初始化报错**：`rag/embeddings.py` 引用 `settings.SILICONFLOW_API_KEY`，迁移时误将该字段注释导致 `AttributeError`；恢复两个 Embedding 相关字段后解决
+- **修复文档删除无效 bug**：`FileUpload.vue` 中删除按钮缺少 `@click.stop`，点击事件冒泡至父级 `n-upload` 组件被捕获为文件选择，导致 DELETE 请求从未发出；加 `.stop` 修饰符后请求正常触发；同步加强后端 `delete_document` 鲁棒性（vector store 删除失败不阻断 DB 删除）
+
+#### ⚠️ 遗留问题
+- 无
 
 ---
 

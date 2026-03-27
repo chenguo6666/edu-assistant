@@ -121,14 +121,20 @@ def delete_document(
     if not doc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="文档不存在")
 
-    # 从向量库删除
-    delete_documents_by_source(doc.collection_name, doc.file_path)
+    # 从向量库删除（失败不影响数据库删除）
+    try:
+        delete_documents_by_source(doc.collection_name, doc.file_path)
+    except Exception:
+        pass
 
-    # 删除文件
-    if os.path.exists(doc.file_path):
-        os.remove(doc.file_path)
+    # 删除文件（失败不影响数据库删除）
+    try:
+        if os.path.exists(doc.file_path):
+            os.remove(doc.file_path)
+    except Exception:
+        pass
 
-    # 删除数据库记录
+    # 删除数据库记录（核心操作）
     db.delete(doc)
     db.commit()
     return {"detail": "文档已删除"}
